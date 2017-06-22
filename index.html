@@ -1,4 +1,155 @@
-<html>
-<head><title>Test page</title></head>
-<body><h1>��������...</h1></body>
+<!DOCTYPE HTML>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Крошечный документ HTML5</title>
+<script src="js/scorocode.min.js"></script>
+<script src="js/Chart.bundle.js"></script>
+<script src="js/utils.js"></script>
+<script type="text/javascript">
+   //var zc = require('scorocode');
+   var sc = Scorocode.Init({
+     ApplicationID: "31c69b9181ef4ece8610330da5677322",
+     JavaScriptKey: "c9e964a49b4a452a96c0266150c1f9ad",
+     MasterKey: "d9d6fcf133424c32b89c43c25e0eb251"
+   });
+
+   var ChartData = {
+     labels: [],
+     datasets: [{
+       label: "Temperature",
+       borderColor: window.chartColors.red,
+       backgroundColor: window.chartColors.red,
+       fill: false,
+       data: [],
+       yAxisID: "y-axis-1",
+      },{
+       label: "Humidity",
+       borderColor: window.chartColors.blue,
+       backgroundColor: window.chartColors.blue,
+       fill: false,
+       data: [],
+       yAxisID: "y-axis-2"
+      },{
+       label: "Pressure",
+       borderColor: window.chartColors.green,
+       backgroundColor: window.chartColors.green,
+       fill: false,
+       data: [],
+       yAxisID: "y-axis-3"
+      }]
+    };
+
+
+   function addData() {
+
+   }
+
+   function getData() {
+     var data = new Scorocode.Query("meteodata");
+     var drawingCanvas = document.getElementById('chart');
+     data.find()
+    // Обработка успешного выполнения запроса
+    .then((finded) => {
+        //Выведем полученные данные в консоль
+        console.log(finded);
+        var zout = '<table><tr>' +
+                   '<td align="center">Created</td>' +
+                   '<td align="center">Device</td>' +
+                   '<td align="center">Pressure</td>' +
+                   '<td align="center">Temperature</td>' +
+                   '<td align="center">Humidity</td>' +
+                   '<td align="center">User</td></tr>';
+        if(drawingCanvas && drawingCanvas.getContext) {
+          ChartData.labels = [];
+          ChartData.datasets[0].data = [];
+          ChartData.datasets[1].data = [];
+          ChartData.datasets[2].data = [];
+        }
+        for(i = 0; i < finded.result.length; i++) {
+          var so = finded.result[i];
+          zout += '<tr>';
+          zout += '<td>' + so["createdAt"] + '</td>';
+          zout += '<td>' + so["deviceId"] + '</td>';
+          zout += '<td align="right">' + so["press"] + '</td>';
+          zout += '<td align="right">' + so["tempr"] + '</td>';
+          zout += '<td align="right">' + so["humid"] + '</td>';
+          zout += '<td>' + so["userId"] + '</td>';
+          zout += '</tr>';
+          if(drawingCanvas && drawingCanvas.getContext) {
+            ChartData.labels[i] = so["createdAt"];
+            ChartData.datasets[0].data[i] = so["tempr"];
+            ChartData.datasets[1].data[i] = so["humid"];
+            ChartData.datasets[2].data[i] = so["press"];
+          }
+        }
+        zout += '</table>';
+        document.getElementById('dataList').innerHTML = zout;
+        if(drawingCanvas && drawingCanvas.getContext) {
+          var ctx = drawingCanvas.getContext('2d');
+          window.myLine = Chart.Line(ctx, {
+            data: ChartData,
+            options: {
+              responsive: true,
+              hoverMode: 'index',
+              stacked: false,
+              title:{
+                display: true,
+                text:'Meteo Data'
+              },
+              scales: {
+                yAxes: [{
+                  type: "linear", // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+                  display: true,
+                  position: "left",
+                  id: "y-axis-1",
+                }, {
+                  type: "linear", // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+                  display: true,
+                  position: "left",
+                  id: "y-axis-2",
+                  gridLines: {
+                    drawOnChartArea: false, // only want the grid lines for one axis to show up
+                  },
+                }, {
+                  type: "linear", // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
+                  display: true,
+                  position: "right",
+                  id: "y-axis-3",
+                  gridLines: {
+                    drawOnChartArea: false, // only want the grid lines for one axis to show up
+                  },
+                }],
+              }
+            }
+          });
+          window.myLine.update();
+        }
+    })
+    // Обработка ошибки
+    .catch((err) => {
+        console.log(err)
+    });
+
+   }
+
+</script>
+</head>
+<body>
+  <table>
+    <tr><td align="center">Pressure</td><td align="center">Temperature</td><td align="center">Humidity</td></tr>
+    <tr>
+      <td><input id="press" style="text-align: right" type="number" step="0.1" value="711.5"></td>
+      <td><input id="tempr" style="text-align: right" type="number" step="0.1" value="26.7"></td>
+      <td><input id="humid" style="text-align: right" type="number" step="0.1" value="40.5"></td>
+    </tr>
+  </table>
+  <input type="button" id="butt" onclick="addData()" value="Add Data">
+  <input type="button" id="butt" onclick="getData()" value="Get Data">
+  <div id="dataList"></div>
+  <canvas id="chart" width="640" height="480">
+      <p>Ваш браузер не поддерживает рисование.</p>
+  </canvas>
+
+</body>
 </html>
