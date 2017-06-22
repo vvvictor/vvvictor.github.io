@@ -103,6 +103,12 @@
                   display: true,
                   position: "left",
                   id: "y-axis-1",
+                  ticks: {
+                    beginAtZero:true,
+                    callback: function(value, index, values) {
+                        return value + '℃';
+                    }
+                  }
                 }, {
                   type: "linear", // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
                   display: true,
@@ -111,6 +117,12 @@
                   gridLines: {
                     drawOnChartArea: false, // only want the grid lines for one axis to show up
                   },
+                  ticks: {
+                    beginAtZero:true,
+                    callback: function(value, index, values) {
+                        return value + '%';
+                    }
+                  }
                 }, {
                   type: "linear", // only linear but allow scale type registration. This allows extensions to exist solely for log scale for instance
                   display: true,
@@ -119,9 +131,14 @@
                   gridLines: {
                     drawOnChartArea: false, // only want the grid lines for one axis to show up
                   },
+                  ticks: {
+                    callback: function(value, index, values) {
+                        return value + 'mm';
+                    }
+                  }
                 }],
               }
-            }
+            },
           });
           window.myLine.update();
         }
