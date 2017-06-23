@@ -10,8 +10,7 @@
    //var zc = require('scorocode');
    var sc = Scorocode.Init({
      ApplicationID: "31c69b9181ef4ece8610330da5677322",
-     JavaScriptKey: "c9e964a49b4a452a96c0266150c1f9ad",
-     MasterKey: "d9d6fcf133424c32b89c43c25e0eb251"
+     JavaScriptKey: "c9e964a49b4a452a96c0266150c1f9ad"
    });
 
    var ChartData = {
@@ -20,6 +19,7 @@
        label: "Temperature",
        borderColor: window.chartColors.red,
        backgroundColor: window.chartColors.red,
+       pointStyle: "rect",
        fill: false,
        data: [],
        yAxisID: "y-axis-1",
@@ -27,6 +27,7 @@
        label: "Humidity",
        borderColor: window.chartColors.blue,
        backgroundColor: window.chartColors.blue,
+       pointStyle: "triangle",
        fill: false,
        data: [],
        yAxisID: "y-axis-2"
@@ -34,6 +35,7 @@
        label: "Pressure",
        borderColor: window.chartColors.green,
        backgroundColor: window.chartColors.green,
+       pointStyle: "star",
        fill: false,
        data: [],
        yAxisID: "y-axis-3"
@@ -42,6 +44,25 @@
 
 
    function addData() {
+     var itm = new Scorocode.Object("meteodata");
+     document.getElementById("tempr").value = Math.round(Math.random() * (5000 + 4000) - 4000)/100;
+     document.getElementById("humid").value = Math.round(Math.random() * (9900 - 500) + 500)/100;
+     document.getElementById("press").value = Math.round(Math.random() * (78000 - 68000) + 68000)/100;
+     itm.set("createdAt", Date()).
+         set("userId", "anonim").
+         set("deviceId", "test").
+         set("tempr", new Number(document.getElementById("tempr").value)).
+         set("humid", new Number(document.getElementById("humid").value)).
+         set("press", new Number(document.getElementById("press").value));
+     itm.save()
+     // Обработчик успешного выполнения запроса
+     .then((saved) => {
+          getData();
+      })
+      // Обработчик ошибки
+      .catch((error) => {
+          console.log("Что-то пошло не так: \n", error)
+       });
 
    }
 
@@ -52,7 +73,6 @@
     // Обработка успешного выполнения запроса
     .then((finded) => {
         //Выведем полученные данные в консоль
-        console.log(finded);
         var zout = '<table><tr>' +
                    '<td align="center">Created</td>' +
                    '<td align="center">Device</td>' +
@@ -153,6 +173,9 @@
 </script>
 </head>
 <body>
+  <canvas id="chart" style="width:640px height:480px">
+      <p>Ваш браузер не поддерживает рисование.</p>
+  </canvas>
   <table>
     <tr><td align="center">Pressure</td><td align="center">Temperature</td><td align="center">Humidity</td></tr>
     <tr>
@@ -164,9 +187,6 @@
   <input type="button" id="butt" onclick="addData()" value="Add Data">
   <input type="button" id="butt" onclick="getData()" value="Get Data">
   <div id="dataList"></div>
-  <canvas id="chart" width="640" height="480">
-      <p>Ваш браузер не поддерживает рисование.</p>
-  </canvas>
 
 </body>
 </html>
